@@ -21,7 +21,7 @@ public class Server {
 	private static BlockingQueue<File> filesToSend;
 	private static ConcurrentHashMap<String, Long> fileInfosFromClient; //ak toto pride z klienta tak znamena ze daco ma, ak nepride tak nic nema
 	
-	private static int connections;
+	private static int connections; 
 	
 	private static Long totalFolderSize;
 	private static int numberOfFiles;
