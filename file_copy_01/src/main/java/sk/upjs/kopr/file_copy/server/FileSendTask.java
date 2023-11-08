@@ -53,7 +53,7 @@ public class FileSendTask implements Runnable {
 					}*/ //sa este rozhodnem ci toto hej
 					
 				}
-				oos.writeUTF(filePath); //HADZEM ZE TOTO PRIDE
+				oos.writeUTF(filePath); //HADZEM ZE TENTO FILE PRIDE
 				oos.writeLong(size); //S TAKOU VELKOSTOU 
 				oos.writeLong(offset); //S TAKYM OFFSETOM 
 				
@@ -93,7 +93,7 @@ public class FileSendTask implements Runnable {
 				
 				
 				offset += raf.read(data);
-				oos.write(data);
+				oos.write(data, 0, 0);
 			}
 			oos.flush();
 			raf.close();

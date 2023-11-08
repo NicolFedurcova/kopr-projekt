@@ -51,8 +51,8 @@ public class Server {
 				//while(true) {
 		        for (int i = 0; i < connections; i++) {
 					Socket dataSocket = serverSocket.accept();
-		        	FileSendTask fileSenderTask = new FileSendTask(filesToSend, dataSocket, fileInfosFromClient);
-		        	executor.execute(fileSenderTask);
+		        	FileSendTask fileSendTask = new FileSendTask(filesToSend, dataSocket, fileInfosFromClient);
+		        	executor.execute(fileSendTask);
 		        }
 				communicationSocket.close();
 				
