@@ -17,6 +17,11 @@ public class ProgressSizeService extends Service<Void>{
 		this.totalFileSize = totalFileSize;
 	}
 	
+	public ProgressSizeService(AtomicLong currentFileSize, long totalFileSize) {
+		this.currentFileSize = currentFileSize;
+		this.totalFileSize = totalFileSize;
+	}
+	
 	public void setFileSizeProgress(long progress) {
 		this.currentFileSize.set(progress);
 	}

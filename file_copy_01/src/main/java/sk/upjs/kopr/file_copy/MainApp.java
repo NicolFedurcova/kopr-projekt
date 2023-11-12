@@ -12,8 +12,6 @@ public class MainApp extends Application  {
 	
 	@Override
 	public void start(Stage stage) throws Exception {
-		System.out.println("class: "+getClass());
-		System.out.println("TOTO TU JE PROBLEM:" + getClass().getResource("MainApp.fxml")+"");
 		FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainApp.fxml"));
 		
 		MainAppController controller = new MainAppController();
@@ -31,7 +29,7 @@ public class MainApp extends Application  {
 		
 		
 		stage.setScene(scene);
-		stage.setTitle("Kopirovac priecinku");
+		stage.setTitle("Kopírovač priečinku");
 		stage.show();
 				
 	}

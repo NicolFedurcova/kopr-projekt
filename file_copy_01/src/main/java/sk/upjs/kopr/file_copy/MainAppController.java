@@ -75,7 +75,30 @@ public class MainAppController {
 		
 		ClientTesting client = new ClientTesting(connections);
 		client.start();
+		progressBarFiles.progressProperty().bind(client.pfs.progressProperty());
+		progressBarSize.progressProperty().bind(client.pss.progressProperty());
+		copyButton.setDisable(true);
+		stopButton.setDisable(false);
 		
     }
+    
+    @FXML
+    void stop(ActionEvent event) {
+    	resumeButton.setDisable(false);
+    	stopButton.setDisable(true);
+
+    }
+    
+    @FXML
+    void resume(ActionEvent event) {
+    	resumeButton.setDisable(true);
+    	stopButton.setDisable(false);
+
+    }
+
+    
+
+    
+    
 	    
 }

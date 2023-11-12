@@ -20,7 +20,8 @@ public class ProgressFilesService extends Service<Void>{
 	public void setFileNumberProgress(int progress) {
 		this.currentFileNumber.set(progress);
 	}
-
+	
+	
 	@Override
 	protected Task<Void> createTask() {
 		return new Task<Void>() {
