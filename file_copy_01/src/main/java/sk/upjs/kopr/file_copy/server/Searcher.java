@@ -8,6 +8,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
+import sk.upjs.kopr.file_copy.client.ClientTesting;
+
 public class Searcher implements Callable<Long[]>{
 	
 	public static final File POISON_PILL = new File("poison.pill");
@@ -34,7 +36,15 @@ public class Searcher implements Callable<Long[]>{
 	
 	@Override
 	public Long[] call() {
-		return search(rootDir);
+		Long [] result = search(rootDir);
+		
+		if(filesToSend!=null) {
+			for(int i = 0; i<ClientTesting.CONNECTIONS; i++) {
+				filesToSend.offer(POISON_PILL); //tolko poison pillov kolko sendtaskov kolko vlakien
+			}
+		}
+		
+		return result;
 	}
 	
 	private Long[] search(File directory) {
@@ -45,11 +55,11 @@ public class Searcher implements Callable<Long[]>{
 			if(files[i].isFile()) {
 				if(filesToSend!=null) {
 					filesToSend.offer(files[i]);
-					System.out.println("SERAHCER naplnil files to send");
+					//System.out.println("SERAHCER naplnil files to send");
 				}
 				if (clientFileInfos!=null) {
 					clientFileInfos.put(files[i].getAbsolutePath(), files[i].length());//SERVERU POSIELAM MAPU S ABSOLUTNYMI CESTAMI U KLIENTA!!
-					System.out.println("SERAHCER naplnil client file infos");
+					//System.out.println("SERAHCER naplnil client file infos");
 				}
 				sizeOfFiles+=files[i].length();
 				numberOfFiles++;
@@ -58,7 +68,8 @@ public class Searcher implements Callable<Long[]>{
 				search(files[i]);
 			}
 		}
-				
+		
+					
 		Long[] result = {sizeOfFiles, numberOfFiles};
 		return result;
 	}

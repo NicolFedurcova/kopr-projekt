@@ -3,7 +3,7 @@
 
 @font-face {
     font-family: 'Comfortaa';
-    src: url('Comfortaa-Medium.ttf');
+    src: url("Comfortaa-Medium.ttf");
 }
 
 @font-face {
@@ -13,20 +13,21 @@
 
 .root {
     -fx-background-color: #f0f0f0;
-    -fx-font-family: 'Mukta';
+    -fx-font-family: 'Mukta Light';
     -fx-font-size: 16px;
     -fx-text-fill: #355261;
 }
 
 .label {
-    -fx-font-family: 'Mukta';
+    -fx-font-family: 'Mukta Light'!important;
     -fx-text-fill: #003049;
 }
 
 .top-text {
-    -fx-font-family: 'Mukta Light';
-    -fx-font-size: 32px;
-    -fx-text-fill: #47a2f7;
+    -fx-font-family: 'Comfortaa Medium'!important;
+    -fx-font-size: 35px !important;
+    -fx-text-fill: #47a2f7 !important; //#47a2f7
+    -fx-font-weight: bold !important;
 }
 
 
@@ -35,8 +36,8 @@
 }
 
 .button {
-    -fx-font-family: 'Mukta';
-    -fx-text-fill: #F6F4EE;
+    -fx-font-family: 'Comfortaa Medium'!important;
+    -fx-text-fill: #f0f0f0;
     -fx-font-size: 100%;
     -fx-padding: 5 10 5 10;
     -fx-border-radius: 10; 
@@ -47,7 +48,16 @@
 }
 .button:hover {
     -fx-background-color : #335f91;
-}   
+}  
+
+#sourceFolderNameText{
+    -fx-text-fill: #47a2f7 !important;
+    
+} 
+
+#destinationFolderNameText{
+    -fx-text-fill: #47a2f7 !important;
+}
 
 .button:disable{
     -fx-background-color : #586166;
@@ -56,15 +66,16 @@
 .text-field {
     -fx-text-fill: #003049;
     -fx-border-radius: 5; 
-    -fx-border-width: 1;
+    -fx-border-width: 0.2;
     -fx-background-color: #f9f9f9;  
-    -fx-border-color: #47a2f7;
+    -fx-border-color:  #003049;
+    -fx-font-family: 'Mukta Light'!important;
 
 }
 
 /* This is for progress bar */
 .progress-bar .track {
-    -fx-background-color: #f9f9f9;  
+    -fx-background-color: #f2f3f5;  //#f2f3f5
     -fx-background-radius: 5;
     -fx-border-color: #47a2f7;
     -fx-border-radius: 5; 
@@ -73,4 +84,31 @@
 .progress-bar .bar {
     -fx-background-color: #003049;
     -fx-background-radius: 5;
+}
+
+.dialog > *.label.content{
+    -fx-background-color: #f0f0f0;
+    -fx-font-family: 'Mukta Light'!important;
+    -fx-font-size: 18px;
+}
+
+.dialog > .button-bar > .container{
+   -fx-background-color: #f0f0f0;
+}
+
+.dialog .button{
+        -fx-font-family: 'Comfortaa Medium'!important;
+    -fx-text-fill: #f0f0f0;
+    -fx-font-size: 100%;
+    -fx-padding: 5 10 5 10;
+    -fx-border-radius: 10; 
+    -fx-border: 0;
+    -fx-background-color: linear-gradient(to bottom, #003049, #134074);
+}
+
+}
+.dialog:header .header-panel .label{
+    -fx-font-family: 'Mukta Light'!important;
+    -fx-font-size: 20px;
+    -fx-text-fill: #47a2f7 !important;
 }

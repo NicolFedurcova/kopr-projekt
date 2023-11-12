@@ -26,34 +26,56 @@ import sk.upjs.kopr.file_copy.server.Server;
 public class ClientTesting extends Service<Boolean> {
 
 	public static ConcurrentHashMap<String, Long> filesIHave;
-	public static final File TARGET_DESTINATION = new File("C:\\Users\\nicol\\Desktop\\test_copy");
-	public static int connections;
+	public static final File TARGET_DESTINATION = new File("C:\\Users\\nicol\\Desktop\\cisla_copy");
+	public static  int CONNECTIONS = 6;
 	private static int numberOfFiles;
 	private static long totalSizeOfFiles;
-	private AtomicInteger progressNumberOfFiles;
-	private AtomicLong progressSize;
+	private static AtomicInteger progressNumberOfFiles;
+	private static AtomicLong progressSize;
+	
+	public ClientTesting(int connections) {
+		this.CONNECTIONS = connections;
+	}
 	
 
 	public static void main(String[] args) {
-		try (Socket socket = new Socket("localhost", Server.SERVER_PORT)) {
-			connections = 3;
-			ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-			ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+		
+		try (Socket communicationSocket = new Socket("localhost", Server.SERVER_PORT)) {
+			//connections = 3;
+			ObjectOutputStream oos = new ObjectOutputStream(communicationSocket.getOutputStream());
+			ObjectInputStream ois = new ObjectInputStream(communicationSocket.getInputStream());
 
+			
 			filesIHave = new ConcurrentHashMap<>();
-			getFileInfo();
+			Long[] sizeLengthInfo = getFileInfo();
 			handshake(oos, ois, numberOfFiles, totalSizeOfFiles);
+			
+			progressNumberOfFiles = new AtomicInteger(sizeLengthInfo[0].intValue());
+			progressSize = new AtomicLong(sizeLengthInfo[1]);
+			
+			
+			ExecutorService executor = Executors.newCachedThreadPool();
+			//List<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
+	        for (int i = 0; i < CONNECTIONS; i++) {
+				Socket dataSocket = new Socket("localhost", Server.SERVER_PORT);
+	        	FileSaveTask fileSaveTask = new FileSaveTask(dataSocket, progressNumberOfFiles,progressSize,i );
+				executor.execute(fileSaveTask);
+	        }
+	        executor.shutdown(); //////////////////////////////////////////
+			communicationSocket.close();
+			
 			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 	}
 
-	public static void getFileInfo() {
+	public static Long[] getFileInfo() {
 		Searcher searcher = new Searcher(TARGET_DESTINATION, filesIHave);
-		searcher.call();
+		return searcher.call();
 
 	}
 
@@ -63,21 +85,27 @@ public class ClientTesting extends Service<Boolean> {
 
 			@Override
 			protected Boolean call() throws Exception {
+				/*
 				try (Socket communicationSocket = new Socket("localhost", Server.SERVER_PORT)) {
 
-					connections = 3;
+					//CONNECTIONS = 3;
 					ObjectOutputStream oos = new ObjectOutputStream(communicationSocket.getOutputStream());
 					ObjectInputStream ois = new ObjectInputStream(communicationSocket.getInputStream());
-
+					
+					
 					filesIHave = new ConcurrentHashMap<>();
-					getFileInfo();
+					Long[] sizeLengthInfo = getFileInfo();
 					handshake(oos, ois, numberOfFiles, totalSizeOfFiles);
 					
+					progressNumberOfFiles = new AtomicInteger(sizeLengthInfo[0].intValue());
+					progressSize = new AtomicLong(sizeLengthInfo[1]);
+					
+			
 					ExecutorService executor = Executors.newCachedThreadPool();
 					//List<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
-			        for (int i = 0; i < connections; i++) {
+			        for (int i = 0; i < CONNECTIONS; i++) {
 						Socket dataSocket = new Socket("localhost", Server.SERVER_PORT);
-			        	FileSaveTask fileSaveTask = new FileSaveTask(dataSocket, progressNumberOfFiles,progressSize );
+			        	FileSaveTask fileSaveTask = new FileSaveTask(dataSocket, progressNumberOfFiles,progressSize,i );
 						executor.execute(fileSaveTask);
 			        }
 					communicationSocket.close();
@@ -87,25 +115,26 @@ public class ClientTesting extends Service<Boolean> {
 					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
-				}
+				}*/
 				return true;
 			}
-
+			
 		};
 	}
+	
 
 	private static void handshake(ObjectOutputStream oos, ObjectInputStream ois, int numberOfFiles, long totalSizeOfFiles) {
 		try {
 			if (filesIHave.isEmpty()) {
 				oos.writeUTF("I WANT IT ALL");
-				oos.writeInt(connections);
-				System.out.println("client sends: I WANT IT ALL, number of connections: " + connections);
+				oos.writeInt(CONNECTIONS);
+				System.out.println("client sends: I WANT IT ALL, number of connections: " + CONNECTIONS);
 			} else {
 				oos.writeUTF("I ALREADY HAVE SOMETHING");
 				oos.writeObject(filesIHave);
-				oos.writeInt(connections);
+				oos.writeInt(CONNECTIONS);
 				System.out.println("client sends: I ALREADY HAVE SOMETHING: " + filesIHave.toString()
-						+ "\n with number of connections: " + connections);
+						+ "\n with number of connections: " + CONNECTIONS);
 			}
 			oos.flush();
 

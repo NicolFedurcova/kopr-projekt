@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -17,7 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Server {
 
 	public static final int SERVER_PORT = 5000;
-	public static final File FOLDER_TO_SHARE = new File("C:\\Users\\nicol\\Desktop\\test");
+	public static final File FOLDER_TO_SHARE = new File("C:\\Users\\nicol\\Desktop\\cisla");
 	private static BlockingQueue<File> filesToSend;
 	private static ConcurrentHashMap<String, Long> fileInfosFromClient; //ak toto pride z klienta tak znamena ze daco ma, ak nepride tak nic nema
 	
@@ -35,7 +36,7 @@ public class Server {
 		try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
 			System.out.println("Server is running on port " + SERVER_PORT + " ...");
 			System.out.println("Sharing folder " + FOLDER_TO_SHARE);
-			
+			ExecutorService executor = Executors.newCachedThreadPool(); //jeden executor pre vsetkych clientov
 			//velky cyklus pre kazdeho klienta co si zapyta spojenie
 			while(true) {
 				Socket communicationSocket = serverSocket.accept();
@@ -45,18 +46,21 @@ public class Server {
 				filesToSend = new LinkedBlockingQueue<File>();
 				getFolderContent();			
 				handshake(oos, ois);
+				System.out.println("FILES TO SEND: ");
+				System.out.println(Arrays.toString(filesToSend.toArray()));
 				
 				
-				ExecutorService executor = Executors.newCachedThreadPool();
+				//ExecutorService executor = Executors.newCachedThreadPool(); //TOTO SOM POSUNULA HORE
 				//while(true) {
-		        for (int i = 0; i < connections; i++) {
+				
+		        for (int i = 0; i < connections; i++) {		
 					Socket dataSocket = serverSocket.accept();
 		        	FileSendTask fileSendTask = new FileSendTask(filesToSend, dataSocket, fileInfosFromClient);
 		        	executor.execute(fileSendTask);
 		        }
-				communicationSocket.close();
-				
-								
+		        communicationSocket.close();
+					
+						
 			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -92,6 +96,7 @@ public class Server {
 				return;
 			}
 			connections = ois.readInt();
+			System.out.println("server gets: NUMBER OF CONNECTIONS: " + connections );
 			
 			oos.writeUTF("OK, HERE IS INFO ABOUT WHAT I HAVE");
 			System.out.println("server sends: OK, HERE IS INFO ABOUT WHAT I HAVE");
@@ -99,8 +104,8 @@ public class Server {
 			System.out.println("number of files:" + numberOfFiles);
 			oos.writeLong(totalFolderSize);
 			System.out.println("total folder size:" + totalFolderSize + " B");
-			oos.writeUTF("END OF INFO");
-			System.out.println("END OF INFO");
+			oos.writeUTF("END OF INFO, GONNA SEND FILES NOW");
+			System.out.println("END OF INFO, GONNA SEND FILES NOW");
 			oos.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
