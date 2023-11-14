@@ -7,21 +7,24 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="487.0" prefWidth="721.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Button fx:id="copyButton" layoutX="453.0" layoutY="104.0" mnemonicParsing="false" onAction="#copy" prefHeight="45.0" prefWidth="121.0" text="Kopírovať" />
-      <Text fx:id="sourceFolderNameText" layoutX="216.0" layoutY="131.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Názov zdroja" />
-      <TextField fx:id="portCountTextField" layoutX="178.0" layoutY="209.0" prefHeight="26.0" prefWidth="51.0" />
-      <Label layoutX="54.0" layoutY="95.0" text="Zdrojový priečinok:" />
-      <Label layoutX="53.0" layoutY="191.0" text="Počet portov:" />
-      <Label layoutX="53.0" layoutY="245.0" text="Info o súboroch:" />
-      <ProgressBar fx:id="progressBarFiles" layoutX="94.0" layoutY="273.0" prefHeight="26.0" prefWidth="314.0" progress="0.0" />
-      <Button fx:id="stopButton" layoutX="448.0" layoutY="235.0" mnemonicParsing="false" onAction="#stop" prefHeight="45.0" prefWidth="121.0" text="Zastaviť" />
-      <Button fx:id="resumeButton" layoutX="448.0" layoutY="318.0" mnemonicParsing="false" onAction="#resume" prefHeight="45.0" prefWidth="121.0" text="Pokračovať" />
-      <Label layoutX="54.0" layoutY="318.0" text="Info o veľkosti:" />
-      <ProgressBar fx:id="progressBarSize" layoutX="94.0" layoutY="343.0" prefHeight="26.0" prefWidth="314.0" progress="0.0" />
-      <Label layoutX="118.0" layoutY="25.0" styleClass="top-text" text="Kopírovač priečinku" />
-      <Label layoutX="53.0" layoutY="142.0" text="Cieľový priečinok:" />
-      <Text fx:id="destinationFolderNameText" layoutX="220.0" layoutY="179.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Názov cieľa" />
+      <Button fx:id="copyButton" layoutX="258.0" layoutY="186.0" mnemonicParsing="false" onAction="#copy" prefHeight="45.0" prefWidth="121.0" text="Kopírovať" />
+      <Text fx:id="sourceFolderNameText" layoutX="223.0" layoutY="109.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Názov zdroja" />
+      <TextField fx:id="portCountTextField" layoutX="585.0" layoutY="113.0" prefHeight="26.0" prefWidth="51.0" />
+      <Label layoutX="45.0" layoutY="96.0" text="Zdrojový priečinok:" />
+      <Label layoutX="575.0" layoutY="79.0" text="Počet portov:" />
+      <Label layoutX="57.0" layoutY="309.0" text="Info o súboroch:" />
+      <ProgressBar fx:id="progressBarFiles" layoutX="143.0" layoutY="340.0" prefHeight="26.0" prefWidth="314.0" progress="0.0" />
+      <Button fx:id="stopButton" layoutX="525.0" layoutY="317.0" mnemonicParsing="false" onAction="#stop" prefHeight="45.0" prefWidth="121.0" text="Zastaviť" />
+      <Button fx:id="resumeButton" layoutX="525.0" layoutY="409.0" mnemonicParsing="false" onAction="#resume" prefHeight="45.0" prefWidth="121.0" text="Pokračovať" />
+      <Label layoutX="61.0" layoutY="373.0" text="Info o veľkosti:" />
+      <ProgressBar fx:id="progressBarSize" layoutX="143.0" layoutY="409.0" prefHeight="26.0" prefWidth="314.0" progress="0.0" />
+      <Label layoutX="195.0" layoutY="37.0" styleClass="top-text" text="Kopírovač priečinku" />
+      <Label layoutX="42.0" layoutY="141.0" text="Cieľový priečinok:" />
+      <Text fx:id="destinationFolderNameText" layoutX="223.0" layoutY="154.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Názov cieľa" />
+      <Text fx:id="numberOfFilesLabel" layoutX="257.0" layoutY="322.0" strokeType="OUTSIDE" strokeWidth="0.0" text="percento Súborov" />
+      <Text fx:id="sizeLabel" layoutX="257.0" layoutY="386.0" strokeType="OUTSIDE" strokeWidth="0.0" text="percento Veľkosti" />
+      <Label fx:id="infoLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="218.0" layoutY="244.0" styleClass="info" text="INFOLABEL" textAlignment="CENTER" />
    </children>
 </AnchorPane>

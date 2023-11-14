@@ -10,16 +10,17 @@ public class ProgressFilesService extends Service<Void>{
 	private AtomicInteger currentFileNumber;
 	private final long totalFileNumber;
 	
-	
-
-	public ProgressFilesService(AtomicInteger currentFileNumber, long totalFileNumber) {
-		this.currentFileNumber = currentFileNumber;
+		
+	public ProgressFilesService(int currentFileNumber, long totalFileNumber) {
+		this.currentFileNumber = new AtomicInteger(currentFileNumber);
 		this.totalFileNumber = totalFileNumber;
 	}
 	
-	public void setFileNumberProgress(int progress) {
-		this.currentFileNumber.set(progress);
+	
+	public void incrementFileNumberProgress() {
+		this.currentFileNumber.incrementAndGet();
 	}
+
 	
 	
 	@Override
@@ -28,7 +29,11 @@ public class ProgressFilesService extends Service<Void>{
 
 			@Override
 			protected Void call() throws Exception {
+				System.out.println("NUMBER:::::::: curr: " + currentFileNumber.get() + " total " + totalFileNumber);
+				
 				while(currentFileNumber.get()<totalFileNumber) {
+					//System.out.println("UPDATED NUMBER:::::::: curr: " + currentFileNumber.get() + " total " + totalFileNumber);
+					
 					updateProgress(currentFileNumber.get(), totalFileNumber);
 				}
 				return null;

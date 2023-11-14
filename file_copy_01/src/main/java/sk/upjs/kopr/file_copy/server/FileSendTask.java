@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +25,7 @@ public class FileSendTask implements Runnable {
 	private File fileBeingSent;
 	private Long offset;
 	private Long size;
+	private ObjectOutputStream oos;
 	
 	public FileSendTask(BlockingQueue<File> filesToSend, Socket dataSocket,
 			ConcurrentHashMap<String, Long> fileInfosFromClient) throws FileNotFoundException {
@@ -38,7 +40,7 @@ public class FileSendTask implements Runnable {
 	public void run() {
 		try {
 			fileBeingSent = filesToSend.take();//takujem prvy
-			ObjectOutputStream oos = new ObjectOutputStream(dataSocket.getOutputStream());
+			oos = new ObjectOutputStream(dataSocket.getOutputStream());
 			
 			while(fileBeingSent != Searcher.POISON_PILL) {
 				
@@ -71,16 +73,32 @@ public class FileSendTask implements Runnable {
 			oos.writeUTF(Searcher.POISON_PILL.getName()); //TOTO ASI ENCHCEM TU MAT
 			//System.out.println(Searcher.POISON_PILL.getName());
 			//System.out.println("socket on port: " + dataSocket.getPort() + " was killed by poison! watch out!");
+			/*
 			if (oos != null) oos.close();
 			if (dataSocket != null && dataSocket.isConnected()) dataSocket.close();
+			*/
 			
-			
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (SocketException e1) {
+			System.err.println("******** "+ Thread.currentThread().getName()+"\n client is lost");
+			/////////////////////////////////////////////////////////////
+			////////////////////////////////////////////////////////////////
+			//IDK CI TOTO MOZEM ALE SI INTERRUPTUJEM VLAKNO I GUESS?
+			//Thread.currentThread().interrupt();
+			//e1.printStackTrace();
+		} catch (IOException e2) {
+			e2.printStackTrace();
 		} catch (InterruptedException e) {
 			//WATCH OUT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			System.out.println("INTERRUPTED EXCEPTION");
 			e.printStackTrace();
+		}finally {
+			try {
+				if (oos != null) oos.close();
+				if (dataSocket != null && dataSocket.isConnected()) dataSocket.close();
+				System.out.println("******** "+ Thread.currentThread().getName()+" zatvaram si oos a ois vo finally");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

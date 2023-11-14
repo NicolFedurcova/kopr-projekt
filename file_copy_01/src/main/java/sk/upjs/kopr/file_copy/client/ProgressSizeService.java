@@ -10,20 +10,15 @@ public class ProgressSizeService extends Service<Void>{
 	private AtomicLong currentFileSize;
 	private final long totalFileSize;
 	
-	
 
 	public ProgressSizeService(long currentFileSize, long totalFileSize) {
 		this.currentFileSize = new AtomicLong(currentFileSize);
 		this.totalFileSize = totalFileSize;
 	}
 	
-	public ProgressSizeService(AtomicLong currentFileSize, long totalFileSize) {
-		this.currentFileSize = currentFileSize;
-		this.totalFileSize = totalFileSize;
-	}
 	
-	public void setFileSizeProgress(long progress) {
-		this.currentFileSize.set(progress);
+	public void incrementFileSizeProgress(long progress) {
+		this.currentFileSize.addAndGet(progress);
 	}
 
 
@@ -35,7 +30,10 @@ public class ProgressSizeService extends Service<Void>{
 
 			@Override
 			protected Void call() throws Exception {
+				System.out.println("SIZE:::::::: curr: " + currentFileSize.get() + " total " + totalFileSize);
+				
 				while(currentFileSize.get()<totalFileSize) {
+					//System.out.println("SIZE:::::::: curr: " + currentFileSize.get() + " total " + totalFileSize);
 					updateProgress(currentFileSize.get(), totalFileSize);
 				}
 				return null;

@@ -43,8 +43,7 @@ public class Server {
 				ObjectInputStream ois = new ObjectInputStream(communicationSocket.getInputStream());
 				ObjectOutputStream oos = new ObjectOutputStream(communicationSocket.getOutputStream());
 				fileInfosFromClient = null;
-				filesToSend = new LinkedBlockingQueue<File>();
-				getFolderContent();			
+				filesToSend = new LinkedBlockingQueue<File>();		
 				handshake(oos, ois);
 				System.out.println("FILES TO SEND: ");
 				System.out.println(Arrays.toString(filesToSend.toArray()));
@@ -72,8 +71,8 @@ public class Server {
 		}*/
 		
 	}
-	private static void getFolderContent() {
-		Searcher searcher = new Searcher(FOLDER_TO_SHARE, filesToSend);
+	private static void getFolderContent(int connections) {
+		Searcher searcher = new Searcher(FOLDER_TO_SHARE, filesToSend, connections);
 		Long [] result = searcher.call();
 		totalFolderSize = result[0];
 		numberOfFiles = result[1].intValue();
@@ -97,6 +96,8 @@ public class Server {
 			}
 			connections = ois.readInt();
 			System.out.println("server gets: NUMBER OF CONNECTIONS: " + connections );
+			
+			getFolderContent(connections);	
 			
 			oos.writeUTF("OK, HERE IS INFO ABOUT WHAT I HAVE");
 			System.out.println("server sends: OK, HERE IS INFO ABOUT WHAT I HAVE");

@@ -18,13 +18,15 @@ public class Searcher implements Callable<Long[]>{
 	private long sizeOfFiles;
 	private long numberOfFiles;
 	private ConcurrentHashMap<String, Long> clientFileInfos;
+	private int connections;
 	
 	
 	
-	public Searcher(File rootDir, BlockingQueue<File> filesToSend) {		
+	public Searcher(File rootDir, BlockingQueue<File> filesToSend, int connections) {		
 		this.rootDir = rootDir;
 		this.filesToSend = filesToSend;
 		this.clientFileInfos = null;
+		this.connections = connections;
 	}
 	
 	public Searcher(File rootDir, ConcurrentHashMap<String, Long> fileInfos) {		
@@ -39,8 +41,9 @@ public class Searcher implements Callable<Long[]>{
 		Long [] result = search(rootDir);
 		
 		if(filesToSend!=null) {
-			for(int i = 0; i<ClientTesting.CONNECTIONS; i++) {
+			for(int i = 0; i<connections; i++) {
 				filesToSend.offer(POISON_PILL); //tolko poison pillov kolko sendtaskov kolko vlakien
+				System.out.println("000000000000000000000000000000000000000000000000000000000000000000 POISON");
 			}
 		}
 		

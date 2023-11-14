@@ -30,6 +30,12 @@
     -fx-font-weight: bold !important;
 }
 
+.info {
+    -fx-text-fill: #47a2f7 !important; //#47a2f7
+    -fx-font-weight: bold !important;
+    -fx-font-size: 24px;
+}
+
 
 .anchorPane{
     -fx-background-color: #003049;
@@ -73,7 +79,6 @@
 
 }
 
-/* This is for progress bar */
 .progress-bar .track {
     -fx-background-color: #f2f3f5;  //#f2f3f5
     -fx-background-radius: 5;
