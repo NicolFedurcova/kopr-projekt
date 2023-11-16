@@ -20,11 +20,9 @@
       <Button fx:id="resumeButton" layoutX="525.0" layoutY="409.0" mnemonicParsing="false" onAction="#resume" prefHeight="45.0" prefWidth="121.0" text="Pokračovať" />
       <Label layoutX="61.0" layoutY="373.0" text="Info o veľkosti:" />
       <ProgressBar fx:id="progressBarSize" layoutX="143.0" layoutY="409.0" prefHeight="26.0" prefWidth="314.0" progress="0.0" />
-      <Label layoutX="195.0" layoutY="37.0" styleClass="top-text" text="Kopírovač priečinku" />
+      <Label layoutX="195.0" layoutY="29.0" styleClass="top-text" text="Kopírovač priečinku" />
       <Label layoutX="42.0" layoutY="141.0" text="Cieľový priečinok:" />
       <Text fx:id="destinationFolderNameText" layoutX="223.0" layoutY="154.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Názov cieľa" />
-      <Text fx:id="numberOfFilesLabel" layoutX="257.0" layoutY="322.0" strokeType="OUTSIDE" strokeWidth="0.0" text="percento Súborov" />
-      <Text fx:id="sizeLabel" layoutX="257.0" layoutY="386.0" strokeType="OUTSIDE" strokeWidth="0.0" text="percento Veľkosti" />
-      <Label fx:id="infoLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="218.0" layoutY="244.0" styleClass="info" text="INFOLABEL" textAlignment="CENTER" />
+      <Label fx:id="infoLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="193.0" layoutY="244.0" styleClass="info" text="INFOLABEL" textAlignment="CENTER" />
    </children>
 </AnchorPane>

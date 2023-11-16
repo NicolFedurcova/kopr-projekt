@@ -12,20 +12,26 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javafx.application.Application;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import sk.upjs.kopr.file_copy.MainAppController;
 import sk.upjs.kopr.file_copy.server.FileSendTask;
 import sk.upjs.kopr.file_copy.server.Searcher;
 
 public class FileSaveTask implements Runnable{
 	private Socket dataSocket;
-	private int order;
 	private CountDownLatch gate;
 	private ObjectInputStream ois;
+	private Label label;
+	private Alert alert;
 	
-	public FileSaveTask(Socket dataSocket,int order, CountDownLatch gate) {
+	
+	public FileSaveTask(Socket dataSocket, CountDownLatch gate, Alert alert, Label label) {
 		this.dataSocket = dataSocket;
-		this.order = order;
 		this.gate = gate;
+		this.label = label;
+		this.alert = alert;
 		
 	}
 
@@ -34,49 +40,44 @@ public class FileSaveTask implements Runnable{
 		try {
 			
 			ois = new ObjectInputStream(dataSocket.getInputStream());
-			while(true) { ///kym nepride poison pill
-				/////////////////////////////////////////////////////////////////////////////////////
-				//IDK CI TOT OTU TAK MOZE BYT
+			while(true) {
 				if(Thread.currentThread().isInterrupted()) {
-					/*
-					System.out.println(Thread.currentThread().getName() +"SA GATE ZNIZIL file save task run");
-					gate.countDown();
-					if (ois != null) ois.close();
-					if (dataSocket != null && dataSocket.isConnected()) dataSocket.close();
-					*/
-					System.out.println(Thread.currentThread().getName() + "  SOM ZISTIL PRERUSENIE V RUNe");
 					return;
 				}
-				////////////////////////////////////////////////////////////////////////////////////
+				
 				String filePath = ois.readUTF();
 				if(filePath.equals(Searcher.POISON_PILL.getName())) {
-					System.out.println(Thread.currentThread().getName() + "  TU JE POISON PILL");
 					break;
-					
 				}
+				
 				File fileBeingReceived = new File(filePath);
-				System.out.println(order + " file being received: " + filePath + " by thread: " + Thread.currentThread().getName());
+				System.out.println(" file being received: " + filePath + " by thread: " + Thread.currentThread().getName());
 				File path = fileBeingReceived.getParentFile();
 				path.mkdirs();
 				
-				long size = ois.readLong(); //celkova velkost filu ktory prichadza
-	            long offset = ois.readLong();	//uvodny offset			
+				long size = ois.readLong();
+	            long offset = ois.readLong();		
 				
 				receiveData(ois, fileBeingReceived, size, offset);
-				System.out.println(Thread.currentThread() + "   SKONCIL SOM");
-				ClientTesting.pfs.incrementFileNumberProgress();
+				
+				ClientService.pfs.incrementFileNumberProgress();
 								
 			}
 						
 		} catch (SocketException e1){
-			System.err.println("SERVER BOL ZASTAVENY");
-			//MainAppController.customErrorAlert("Server bol zastavený...", "Server bol zastavený počas sťahovania, skúste znova neskôr...");
+			
+			javafx.application.Platform.runLater(() -> {
+			      alert.setContentText("Server bol zastavený! Spustite kopírovanie znova");
+			      alert.show();
+			      label.setText("Server bol zastavený, spustite server a skúste znova");
+			      return;
+		    });
+			
 		}catch (IOException e) {
 			System.err.println("IO EXCEPTION");
-			//e.printStackTrace();
+			e.printStackTrace();
 		} finally {
 			gate.countDown();
-			System.out.println(Thread.currentThread().getName() + "  SA GATE ZNIZIL VO FINALLY");
 			try {
 				if (ois != null) ois.close();
 				if (dataSocket != null && dataSocket.isConnected()) dataSocket.close();
@@ -92,42 +93,23 @@ public class FileSaveTask implements Runnable{
 		try (RandomAccessFile raf = new RandomAccessFile(fileBeingReceived, "rw")) {
 			byte[] data = new byte[FileSendTask.BLOCK_SIZE];
 			raf.seek(offset);
-			//System.out.println(order  +" sa posuva na offset: " + offset + " z celkoveho size: " + size);
-			
 			
 			int readLength = 0;
 			while (offset < size) {
-				//raf.seek(offset);
-				/////////////////////////////////////////////////////////////////////////////////////
-				//IDK CI TOT OTU TAK MOZE BYT
 				if(Thread.currentThread().isInterrupted()) {
-					/*
-					System.out.println(Thread.currentThread().getName() + "SA GATE ZNIZIL fise save task run ---> receive data ");
-					gate.countDown();
-					if (raf!=null) raf.close();
-					if (ois != null) ois.close();
-					if (dataSocket != null && dataSocket.isConnected()) dataSocket.close();
-					*/
-					System.out.println(Thread.currentThread().getName() + "  SOM ZISTIL PRERUSENIE V Rceive data ");
 					if (raf!=null) raf.close();
 					return;
 				}
-				////////////////////////////////////////////////////////////////////////////////////
+				
 				if(size-offset < FileSendTask.BLOCK_SIZE) {
 					data = new byte[(int)(size-offset)];
-					//readLength = ois.read(data, 0, (int)(size-offset)); 
 					readLength = ois.read(data); 
 				} else {
-					//readLength = ois.read(data, 0, FileSendTask.BLOCK_SIZE);
 					readLength = ois.read(data); 
 				}
-				//System.out.println(order +" TOTO EJ POLE BAJTOV KTORE SA PRIJIMA: " + Arrays.toString(data));
-				//progressSize.addAndGet(readLength);
-				ClientTesting.pss.incrementFileSizeProgress(readLength);
-				//raf.seek(offset);
+				
+				ClientService.pss.incrementFileSizeProgress(readLength);
 				raf.write(data,0,readLength);
-				//raf.write(data);
-				//System.out.println(order + " OFFSET SA ZMENIL Z " + offset + " na " + (offset+readLength) );
 				offset +=readLength;
 				
 				data = new byte[FileSendTask.BLOCK_SIZE];
@@ -136,7 +118,6 @@ public class FileSaveTask implements Runnable{
 			raf.close();
             
 		} catch (SocketException e1){
-			//System.err.println("SERVER BOL ZASTAVENÝ");
 			throw e1;
 		} catch (FileNotFoundException e3) {
 			e3.printStackTrace();

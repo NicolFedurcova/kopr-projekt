@@ -31,11 +31,12 @@ public class ProgressSizeService extends Service<Void>{
 			@Override
 			protected Void call() throws Exception {
 				System.out.println("SIZE:::::::: curr: " + currentFileSize.get() + " total " + totalFileSize);
-				
+				updateProgress(currentFileSize.get(), totalFileSize);
 				while(currentFileSize.get()<totalFileSize) {
 					//System.out.println("SIZE:::::::: curr: " + currentFileSize.get() + " total " + totalFileSize);
 					updateProgress(currentFileSize.get(), totalFileSize);
 				}
+				updateProgress(currentFileSize.get(), totalFileSize);
 				return null;
 			}
 			

@@ -30,12 +30,14 @@ public class ProgressFilesService extends Service<Void>{
 			@Override
 			protected Void call() throws Exception {
 				System.out.println("NUMBER:::::::: curr: " + currentFileNumber.get() + " total " + totalFileNumber);
+				updateProgress(currentFileNumber.get(), totalFileNumber);
 				
 				while(currentFileNumber.get()<totalFileNumber) {
 					//System.out.println("UPDATED NUMBER:::::::: curr: " + currentFileNumber.get() + " total " + totalFileNumber);
 					
 					updateProgress(currentFileNumber.get(), totalFileNumber);
 				}
+				updateProgress(currentFileNumber.get(), totalFileNumber);
 				return null;
 			}
 			

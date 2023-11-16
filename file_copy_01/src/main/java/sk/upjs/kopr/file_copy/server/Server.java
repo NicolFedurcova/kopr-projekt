@@ -20,10 +20,8 @@ public class Server {
 	public static final int SERVER_PORT = 5000;
 	public static final File FOLDER_TO_SHARE = new File("C:\\Users\\nicol\\Desktop\\cisla");
 	private static BlockingQueue<File> filesToSend;
-	private static ConcurrentHashMap<String, Long> fileInfosFromClient; //ak toto pride z klienta tak znamena ze daco ma, ak nepride tak nic nema
-	
+	private static ConcurrentHashMap<String, Long> fileInfosFromClient; 
 	private static int connections; 
-	
 	private static Long totalFolderSize;
 	private static int numberOfFiles;
 	
@@ -36,9 +34,9 @@ public class Server {
 		try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
 			System.out.println("Server is running on port " + SERVER_PORT + " ...");
 			System.out.println("Sharing folder " + FOLDER_TO_SHARE);
-			ExecutorService executor = Executors.newCachedThreadPool(); //jeden executor pre vsetkych clientov
-			//velky cyklus pre kazdeho klienta co si zapyta spojenie
+			ExecutorService executor = Executors.newCachedThreadPool();
 			while(true) {
+				
 				Socket communicationSocket = serverSocket.accept();
 				ObjectInputStream ois = new ObjectInputStream(communicationSocket.getInputStream());
 				ObjectOutputStream oos = new ObjectOutputStream(communicationSocket.getOutputStream());
@@ -48,9 +46,7 @@ public class Server {
 				System.out.println("FILES TO SEND: ");
 				System.out.println(Arrays.toString(filesToSend.toArray()));
 				
-				
-				//ExecutorService executor = Executors.newCachedThreadPool(); //TOTO SOM POSUNULA HORE
-				//while(true) {
+			
 				
 		        for (int i = 0; i < connections; i++) {		
 					Socket dataSocket = serverSocket.accept();
@@ -63,12 +59,7 @@ public class Server {
 			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
-		} /*finally {
-			if (oos != null) oos.close();
-			if (ois != null) ois.close();
-			if (socket != null && socket.isConnected()) socket.close();
-			System.out.println("socket sa zavrel");
-		}*/
+		} 
 		
 	}
 	private static void getFolderContent(int connections) {

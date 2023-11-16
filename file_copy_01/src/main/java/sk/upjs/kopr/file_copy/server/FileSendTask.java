@@ -3,18 +3,15 @@ package sk.upjs.kopr.file_copy.server;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
-import sk.upjs.kopr.file_copy.FileInfo;
-import sk.upjs.kopr.file_copy.FileRequest;
-import sk.upjs.kopr.file_copy.client.ClientTesting;
+import sk.upjs.kopr.file_copy.MainAppController;
+import sk.upjs.kopr.file_copy.client.ClientService;
 
 public class FileSendTask implements Runnable {
 
@@ -32,7 +29,6 @@ public class FileSendTask implements Runnable {
 		this.filesToSend = filesToSend;
 		this.fileInfosFromClient = fileInfosFromClient;
 		this.dataSocket = dataSocket;
-		//System.out.println("------VYTVORIL SA SEND TASK------ " + dataSocket.getPort());
 		
 	}
 
@@ -58,44 +54,30 @@ public class FileSendTask implements Runnable {
 					}
 					
 				}
-				oos.writeUTF(filePath); //HADZEM ZE TENTO FILE PRIDE
-				//System.out.println( dataSocket.getPort() + "  IDE SA POSIELAT SUBOR: " + filePath + " vlaknom " + Thread.currentThread().getName());
-				oos.writeLong(size); //S TAKOU VELKOSTOU 
-				//System.out.println(dataSocket.getPort() + "  S TAKOU VELKOSTOU: " + size);
-				oos.writeLong(offset); //S TAKYM OFFSETOM 
-				//System.out.println(dataSocket.getPort() +"  S TAKYM OFFSETOM: " + offset);
+				oos.writeUTF(filePath); 
+				oos.writeLong(size); 
+				oos.writeLong(offset); 
 				
 				oos.flush();
 				sendData(oos);
 				fileBeingSent = filesToSend.take();
 				
 			}
-			oos.writeUTF(Searcher.POISON_PILL.getName()); //TOTO ASI ENCHCEM TU MAT
-			//System.out.println(Searcher.POISON_PILL.getName());
-			//System.out.println("socket on port: " + dataSocket.getPort() + " was killed by poison! watch out!");
-			/*
-			if (oos != null) oos.close();
-			if (dataSocket != null && dataSocket.isConnected()) dataSocket.close();
-			*/
+			oos.writeUTF(Searcher.POISON_PILL.getName()); 
 			
 		} catch (SocketException e1) {
-			System.err.println("******** "+ Thread.currentThread().getName()+"\n client is lost");
-			/////////////////////////////////////////////////////////////
-			////////////////////////////////////////////////////////////////
-			//IDK CI TOTO MOZEM ALE SI INTERRUPTUJEM VLAKNO I GUESS?
-			//Thread.currentThread().interrupt();
+			//System.err.println("Uz ma nepocuva klient");
 			//e1.printStackTrace();
+		} catch (InterruptedException e) {
+			System.err.println("INTERRUPTED EXCEPTION");
+			e.printStackTrace();
 		} catch (IOException e2) {
 			e2.printStackTrace();
-		} catch (InterruptedException e) {
-			//WATCH OUT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			System.out.println("INTERRUPTED EXCEPTION");
-			e.printStackTrace();
+		
 		}finally {
 			try {
 				if (oos != null) oos.close();
 				if (dataSocket != null && dataSocket.isConnected()) dataSocket.close();
-				System.out.println("******** "+ Thread.currentThread().getName()+" zatvaram si oos a ois vo finally");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -107,30 +89,27 @@ public class FileSendTask implements Runnable {
 			byte[] data = new byte[BLOCK_SIZE];
 			raf.seek(offset);
 			
-			//U GURSKEHO TU ESTE VYNIMKA
 			while (offset < size) {
-				//U GURSKEHO TU ESTE VYNIMKA
-
+				
 				if (size - offset < BLOCK_SIZE) {
 					data = new byte[(int) (size - offset)];
 				} else {
 					data = new byte[BLOCK_SIZE];
 				}
 				long prev = offset;
-				offset += raf.read(data); //pozor k sa tu nastaví -1!!!!!!!!!!!!!
+				offset += raf.read(data); 
 				
-				//System.out.println(dataSocket.getPort() +" TOTO EJ POLE BAJTOV KTORE SA POSIELA: " + Arrays.toString(data)  + " vlaknom " + Thread.currentThread().getName());
 				oos.write(data);
 				oos.flush();
 			}
 			   
+		} catch (SocketException e5) {
+			throw e5;
 		}
 	}
 	
-	///POZOR TU VYSTUPUJE CLIENT TESTING!!!
 	private String getTargetDestination(File file) {
-		//System.out.println("VYSLEDOK get target destination: " + ClientTesting.TARGET_DESTINATION+file.getAbsolutePath().substring(Server.FOLDER_TO_SHARE.getAbsolutePath().length()));
-		return 	ClientTesting.TARGET_DESTINATION+file.getAbsolutePath().substring(Server.FOLDER_TO_SHARE.getAbsolutePath().length());
+		return 	MainAppController.TARGET_DESTINATION+file.getAbsolutePath().substring(Server.FOLDER_TO_SHARE.getAbsolutePath().length());
 		
 	}
 	

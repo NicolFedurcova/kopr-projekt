@@ -8,7 +8,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
-import sk.upjs.kopr.file_copy.client.ClientTesting;
+import sk.upjs.kopr.file_copy.client.ClientService;
 
 public class Searcher implements Callable<Long[]>{
 	
@@ -43,7 +43,6 @@ public class Searcher implements Callable<Long[]>{
 		if(filesToSend!=null) {
 			for(int i = 0; i<connections; i++) {
 				filesToSend.offer(POISON_PILL); //tolko poison pillov kolko sendtaskov kolko vlakien
-				System.out.println("000000000000000000000000000000000000000000000000000000000000000000 POISON");
 			}
 		}
 		
@@ -58,11 +57,9 @@ public class Searcher implements Callable<Long[]>{
 			if(files[i].isFile()) {
 				if(filesToSend!=null) {
 					filesToSend.offer(files[i]);
-					//System.out.println("SERAHCER naplnil files to send");
 				}
 				if (clientFileInfos!=null) {
-					clientFileInfos.put(files[i].getAbsolutePath(), files[i].length());//SERVERU POSIELAM MAPU S ABSOLUTNYMI CESTAMI U KLIENTA!!
-					//System.out.println("SERAHCER naplnil client file infos");
+					clientFileInfos.put(files[i].getAbsolutePath(), files[i].length());
 				}
 				sizeOfFiles+=files[i].length();
 				numberOfFiles++;

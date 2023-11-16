@@ -27,7 +27,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
-import sk.upjs.kopr.file_copy.client.ClientTesting;
+import sk.upjs.kopr.file_copy.client.ClientService;
 import sk.upjs.kopr.file_copy.client.FileSaveTask;
 import sk.upjs.kopr.file_copy.client.ProgressFilesService;
 import sk.upjs.kopr.file_copy.client.ProgressSizeService;
@@ -70,11 +70,11 @@ public class MainAppController{
     @FXML
     private Label infoLabel;
     
-    private int connections;
+    
+    public static int CONNECTIONS;
     private DialogPane dialog;
-    public static Alert alert;
+    private Alert alert;
     private String css = this.getClass().getResource("file_copy.css").toExternalForm();
-    //////////////////////////
     public ConcurrentHashMap<String, Long> filesOfClient;
     private  int progressNumberOfFiles;
 	private  long progressSize;
@@ -83,14 +83,13 @@ public class MainAppController{
 	public static final File TARGET_DESTINATION = new File("C:\\Users\\nicol\\Desktop\\cisla_copy");
 	public static ProgressFilesService pfs;
 	public static ProgressSizeService pss;
-	/////////////////////////////////////////////////
-	private ClientTesting client;
+	private ClientService client;
 	
     
     @FXML
     void initialize() {
     	sourceFolderNameText.setText(Server.FOLDER_TO_SHARE.getAbsolutePath());
-    	destinationFolderNameText.setText(ClientTesting.TARGET_DESTINATION.getAbsolutePath());
+    	destinationFolderNameText.setText(TARGET_DESTINATION.getAbsolutePath());
     	resumeButton.setDisable(true);
     	stopButton.setDisable(true);  
     	infoLabel.setText("");
@@ -104,10 +103,9 @@ public class MainAppController{
     
     @FXML
 	void copy(ActionEvent event) {
-    	
 		try {
-			connections = Integer.parseInt(portCountTextField.getText());
-			if(connections <=0) {
+			CONNECTIONS = Integer.parseInt(portCountTextField.getText());
+			if(CONNECTIONS <=0) {
 				alert.setContentText("Počet spojení musí byť vyplnený, kladný a musí byť celočíselnou hodnotou");
 				alert.show();
 				return;
@@ -118,6 +116,7 @@ public class MainAppController{
 				return;
 		}
 		try (Socket communicationSocket = new Socket("localhost", Server.SERVER_PORT)) {
+			
 			ObjectOutputStream oos = new ObjectOutputStream(communicationSocket.getOutputStream());
 			ObjectInputStream ois = new ObjectInputStream(communicationSocket.getInputStream());
 			
@@ -142,8 +141,6 @@ public class MainAppController{
 					alert.setAlertType(AlertType.INFORMATION);
 					alert.setContentText("kopírovanie bolo úspešne dokončené");
 					alert.show();
-					//progressBarFiles.setVisible(false);
-					//progressBarSize.setVisible(false);
 					return;
 				}
 			});
@@ -157,7 +154,6 @@ public class MainAppController{
 			
 			progressBarFiles.progressProperty().bind(pfs.progressProperty());
 			progressBarSize.progressProperty().bind(pss.progressProperty());
-			
 			pfs.start();
 			pss.start();
 			
@@ -168,15 +164,19 @@ public class MainAppController{
 				e.printStackTrace();
 			}
 			
-			CountDownLatch gate = new CountDownLatch(connections);
-			client = new ClientTesting(connections, gate, pfs, pss);
+			CountDownLatch gate = new CountDownLatch(CONNECTIONS);
+			client = new ClientService(gate, pfs, pss, this.alert, this.infoLabel);
 			client.start();
 			
 			
 		} catch(ConnectException e1) {
-			System.err.println("SERVER NIE JE DOSTUPNY");
-			MainAppController.alert.setContentText("Server nie je dostupný, spustite server a skúste znova");	
-			MainAppController.alert.show();
+			infoLabel.setText("Server bol zastavený, spustite server a skúste znova");
+			stopButton.setDisable(true);
+			alert.setContentText("Server nie je dostupný, spustite server a skúste znova");	
+			alert.show();
+			copyButton.setDisable(false);
+			copyButton.setVisible(true);
+			portCountTextField.setDisable(false);			
 			return;
 			
 		} catch (UnknownHostException e2) {
@@ -190,35 +190,26 @@ public class MainAppController{
 		stopButton.setDisable(false);
 		infoLabel.setText("Prebieha kopírovanie...");
 		portCountTextField.setDisable(true);		
-		
     }
 
     @FXML
     void stop(ActionEvent event) {
     	infoLabel.setText("Kopírovanie sa zastavilo...");
-    	client.stop();
-    	//client.cancel();
+    	client.cancel();
     	resumeButton.setDisable(false);
     	stopButton.setDisable(true);
     	portCountTextField.setDisable(true);
-
     }
     
     @FXML
     void resume(ActionEvent event) {
-    	copy(event);
     	infoLabel.setText("Kopírovanie sa obnovilo...");
     	portCountTextField.setDisable(true);
     	resumeButton.setDisable(true);
     	stopButton.setDisable(false);
-
+    	copy(event);
     }
     
-    public static void customErrorAlert(String label, String message ) {
-    	
-    	MainAppController.alert.setContentText(message);	
-		MainAppController.alert.show();
-    }
     
     
     private Long[] getFileInfo() {
@@ -232,17 +223,17 @@ public class MainAppController{
 			
 			if (filesOfClient.isEmpty()) {
 				oos.writeUTF("I WANT IT ALL");
-				oos.writeInt(connections);
-				System.out.println("client sends: I WANT IT ALL, number of connections: " + connections);
+				oos.writeInt(CONNECTIONS);
+				System.out.println("client sends: I WANT IT ALL, number of connections: " + CONNECTIONS);
 				progressNumberOfFiles = 0;
 				progressSize = 0;
 							
 			} else {
 				oos.writeUTF("I ALREADY HAVE SOMETHING");
 				oos.writeObject(filesOfClient);
-				oos.writeInt(connections);
+				oos.writeInt(CONNECTIONS);
 				System.out.println("client sends: I ALREADY HAVE SOMETHING: " + filesOfClient.toString()
-						+ "\n with number of connections: " + connections);
+						+ "\n with number of connections: " + CONNECTIONS);
 				progressNumberOfFiles = sizeLengthInfo[1].intValue();
 				progressSize = sizeLengthInfo[0];
 			}
@@ -272,10 +263,5 @@ public class MainAppController{
 				}
 		}
 	}
-
-    
-
-    
-    
 	    
 }
